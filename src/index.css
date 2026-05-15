@@ -1,0 +1,248 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Fonts */
+@import "@fontsource/poppins/300.css";
+@import "@fontsource/poppins/400.css";
+@import "@fontsource/poppins/500.css";
+@import "@fontsource/poppins/600.css";
+
+@import "@fontsource/playfair-display/400.css";
+@import "@fontsource/playfair-display/500.css";
+@import "@fontsource/playfair-display/600.css";
+@import "@fontsource/playfair-display/700.css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Base Colors */
+  --background: #f7f4f1;
+  --foreground: #1f1a17;
+
+  --card: #fbf8f5;
+  --card-foreground: #1f1a17;
+
+  --popover: #ffffff;
+  --popover-foreground: #1f1a17;
+
+  /* Accent */
+  --primary: #c95f2b;
+  --primary-foreground: #ffffff;
+
+  --secondary: #ede7e2;
+  --secondary-foreground: #2d2521;
+
+  --muted: #eae4de;
+  --muted-foreground: #7d746e;
+
+  --accent: #f2e8df;
+  --accent-foreground: #c95f2b;
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  --border: #e5ddd6;
+  --input: #e9e2db;
+  --ring: #c95f2b;
+
+  /* Radius */
+  --radius: 1.5rem;
+
+  /* Sidebar */
+  --sidebar: #f7f4f1;
+  --sidebar-foreground: #1f1a17;
+  --sidebar-primary: #c95f2b;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1e6dc;
+  --sidebar-accent-foreground: #c95f2b;
+  --sidebar-border: #e5ddd6;
+  --sidebar-ring: #c95f2b;
+}
+
+.dark {
+  --background: #12100f;
+  --foreground: #f7f4f1;
+
+  --card: #1b1816;
+  --card-foreground: #f7f4f1;
+
+  --popover: #1b1816;
+  --popover-foreground: #f7f4f1;
+
+  --primary: #e1743d;
+  --primary-foreground: #ffffff;
+
+  --secondary: #25211e;
+  --secondary-foreground: #f7f4f1;
+
+  --muted: #201c19;
+  --muted-foreground: #b0a7a0;
+
+  --accent: #2b241f;
+  --accent-foreground: #e1743d;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: #2d2723;
+  --input: #241f1b;
+  --ring: #e1743d;
+
+  --sidebar: #161311;
+  --sidebar-foreground: #f7f4f1;
+  --sidebar-primary: #e1743d;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #2b241f;
+  --sidebar-accent-foreground: #e1743d;
+  --sidebar-border: #2d2723;
+  --sidebar-ring: #e1743d;
+}
+
+@theme inline {
+  /* Fonts */
+  --font-sans: "Poppins", sans-serif;
+  --font-serif: "Playfair Display", serif;
+
+  /* Colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 8px);
+  --radius-md: calc(var(--radius) - 4px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 6px);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    letter-spacing: -0.02em;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Playfair Display", serif;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  h1 {
+    @apply text-6xl font-semibold;
+  }
+
+  h2 {
+    @apply text-5xl font-semibold;
+  }
+
+  h3 {
+    @apply text-4xl font-medium;
+  }
+
+  p {
+    @apply text-sm leading-7 text-muted-foreground;
+  }
+
+  button {
+    @apply transition-all duration-300;
+  }
+}
+
+/* Custom Utility Classes */
+
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(229, 221, 214, 0.8);
+  }
+
+  .ritual-card {
+    @apply bg-card border border-border rounded-[32px]
+    px-8 py-7 transition-all duration-300
+    hover:shadow-lg hover:-translate-y-1;
+  }
+
+  .ritual-button {
+    @apply bg-primary text-primary-foreground
+    rounded-full px-5 py-2 text-sm font-medium
+    hover:opacity-90;
+  }
+
+  .soft-border {
+    border: 1px solid rgba(201, 95, 43, 0.12);
+  }
+
+  .section-title {
+    font-family: "Playfair Display", serif;
+    @apply text-5xl font-semibold tracking-tight;
+  }
+
+  .mini-label {
+    @apply uppercase tracking-[0.35em]
+    text-[11px] text-muted-foreground font-medium;
+  }
+
+  .dashboard-container {
+    @apply max-w-7xl mx-auto px-6 md:px-10;
+  }
+
+  .sidebar-card {
+    @apply bg-card rounded-[28px]
+    border border-border p-6;
+  }
+
+  .orange-dot {
+    @apply w-3 h-3 rounded-full bg-primary;
+  }
+}

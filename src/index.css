@@ -246,3 +246,54 @@
     @apply w-3 h-3 rounded-full bg-primary;
   }
 }
+
+/* Print Styles */
+@media print {
+  @page {
+    margin: 1cm;
+  }
+
+  body {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+
+  .print\:mb-6 {
+    margin-bottom: 1.5rem !important;
+  }
+}
+
+/* Markdown Prose Styles */
+.prose {
+  color: inherit;
+}
+
+.prose p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.prose em {
+  font-style: italic;
+}
+
+.prose code {
+  background: var(--color-muted);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-family: monospace;
+}

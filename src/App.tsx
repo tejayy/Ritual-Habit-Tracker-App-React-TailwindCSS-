@@ -34,7 +34,8 @@ const App = () => {
   const dateLabel = getDateLabel();
 
   const completedToday = useMemo(() => {
-    return state.habits.filter((h) => !h.archived && h.completions[today]).length;
+    return state.habits.filter((h) => !h.archived && h.completions[today])
+      .length;
   }, [state.habits, today]);
 
   const total = state.habits.filter((h) => !h.archived).length;
@@ -61,7 +62,20 @@ const App = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+    <div
+      className="min-h-screen bg-background text-foreground transition-colors duration-300"
+      style={{
+      backgroundImage: `
+        radial-gradient(circle at 50% 50%, 
+          rgba(194, 65, 12, 0.18) 0%, 
+          rgba(194, 65, 12, 0.1) 25%, 
+          rgba(194, 65, 12, 0.04) 35%, 
+          transparent 50%
+        )
+      `,
+      backgroundSize: "100% 100%",
+    }}
+    >
       <Navigation
         dateLabel={dateLabel}
         darkMode={darkMode}

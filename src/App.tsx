@@ -17,6 +17,7 @@ const App = () => {
     hydrated,
     setIntent,
     addHabit,
+    editHabit,
     addHabitsFromTemplate,
     removeHabit,
     archiveHabit,
@@ -99,6 +100,7 @@ const App = () => {
           habits={state.habits}
           hydrated={hydrated}
           onToggle={toggleToday}
+          onEdit={editHabit}
           onArchive={archiveHabit}
           onDuplicate={duplicateHabit}
           onRemove={removeHabit}

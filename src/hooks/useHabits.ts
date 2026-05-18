@@ -162,6 +162,18 @@ export const useHabits = () => {
     []
   );
 
+  const editHabit = useCallback(
+    (id: string, name: string, detail: string, category?: string) => {
+      setState((prev) => ({
+        ...prev,
+        habits: prev.habits.map((h) =>
+          h.id === id ? { ...h, name, detail, category: category || undefined } : h
+        ),
+      }));
+    },
+    []
+  );
+
   const reorderHabits = useCallback((_oldIndex: number, _newIndex: number, filteredHabits: Habit[]) => {
     setState((prev) => {
       const updatedHabits = prev.habits.map((h) => {
@@ -184,6 +196,7 @@ export const useHabits = () => {
     hydrated,
     setIntent,
     addHabit,
+    editHabit,
     addHabitsFromTemplate,
     removeHabit,
     archiveHabit,

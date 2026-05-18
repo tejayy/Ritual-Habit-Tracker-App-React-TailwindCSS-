@@ -4,10 +4,13 @@ import { CSS } from "@dnd-kit/utilities";
 import ReactMarkdown from "react-markdown";
 import type { Habit } from "../../types";
 
+type ViewMode = "compact" | "detailed";
+
 type SortableHabitItemProps = {
   habit: Habit;
   done: boolean;
   streak: number;
+  viewMode: ViewMode;
   onToggle: () => void;
   onArchive: () => void;
   onDuplicate: () => void;
@@ -18,6 +21,7 @@ export const SortableHabitItem: React.FC<SortableHabitItemProps> = ({
   habit,
   done,
   streak,
+  viewMode,
   onToggle,
   onArchive,
   onDuplicate,
@@ -29,124 +33,177 @@ export const SortableHabitItem: React.FC<SortableHabitItemProps> = ({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 50 : undefined,
   };
 
+  /* ── COMPACT ROW ─────────────────────────────────────────────────────── */
+  if (viewMode === "compact") {
+    return (
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={`group flex items-center gap-3 rounded-2xl border px-4 py-3 transition-all duration-200 ${
+          done
+            ? "border-primary/20 bg-primary/5"
+            : "border-border bg-card hover:border-primary/30 hover:bg-card"
+        }`}
+      >
+        {/* Drag handle */}
+        <button
+          {...attributes}
+          {...listeners}
+          className="shrink-0 cursor-grab touch-none text-muted-foreground/40 hover:text-muted-foreground active:cursor-grabbing"
+        >
+          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+          </svg>
+        </button>
+
+        {/* Checkbox */}
+        <button
+          onClick={onToggle}
+          className={`shrink-0 size-6 rounded-full transition-all duration-200 ${
+            done
+              ? "bg-primary shadow-md shadow-primary/30 ring-2 ring-primary/20"
+              : "border-2 border-border hover:border-primary"
+          }`}
+        >
+          {done && (
+            <svg className="mx-auto size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          )}
+        </button>
+
+        {/* Name */}
+        <span
+          className={`flex-1 truncate text-sm font-medium transition-all ${
+            done ? "text-muted-foreground line-through" : "text-foreground"
+          }`}
+        >
+          {habit.name}
+        </span>
+
+        {/* Streak badge */}
+        {streak > 0 && (
+          <span className="shrink-0 text-xs font-semibold text-primary">
+            🔥{streak}
+          </span>
+        )}
+
+        {/* Actions — visible on hover */}
+        <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            onClick={onDuplicate}
+            className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Duplicate"
+          >
+            <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+          <button
+            onClick={onArchive}
+            className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="Archive"
+          >
+            <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+          </button>
+          {!done && (
+            <button
+              onClick={onRemove}
+              className="rounded-full p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+              title="Delete"
+            >
+              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  /* ── DETAILED CARD ───────────────────────────────────────────────────── */
   return (
-    <div ref={setNodeRef} style={style} className="ritual-card group flex items-center">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`group flex items-start gap-3 rounded-2xl border px-5 py-4 transition-all duration-200 ${
+        done
+          ? "border-primary/20 bg-primary/5"
+          : "border-border bg-card hover:border-primary/30 hover:shadow-sm"
+      }`}
+    >
+      {/* Drag handle */}
       <button
         {...attributes}
         {...listeners}
-        className="mr-3 cursor-grab touch-none text-muted-foreground hover:text-foreground active:cursor-grabbing"
+        className="mt-0.5 shrink-0 cursor-grab touch-none text-muted-foreground/40 hover:text-muted-foreground active:cursor-grabbing"
       >
-        <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 8h16M4 16h16"
-          />
+        <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
         </svg>
       </button>
 
+      {/* Checkbox */}
       <button
         onClick={onToggle}
-        className={`mr-6 size-8 rounded-full transition-all duration-300 ${
+        className={`mt-0.5 shrink-0 size-7 rounded-full transition-all duration-300 ${
           done
             ? "bg-primary shadow-lg shadow-primary/30 ring-4 ring-primary/20"
             : "border-2 border-border hover:border-primary"
         }`}
       >
         {done && (
-          <svg
-            className="mx-auto size-5 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={3}
-              d="M5 13l4 4L19 7"
-            />
+          <svg className="mx-auto size-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
           </svg>
         )}
       </button>
 
+      {/* Content */}
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <h3
-            className={`font-serif text-xl font-semibold transition-all ${
-              done ? "text-muted-foreground line-through" : "text-foreground"
-            }`}
-          >
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className={`font-serif text-base font-semibold transition-all ${done ? "text-muted-foreground line-through" : "text-foreground"}`}>
             {habit.name}
           </h3>
           {habit.category && (
-            <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
               {habit.category}
             </span>
           )}
+          {streak > 0 && (
+            <span className="text-xs font-semibold text-primary">🔥 {streak}d</span>
+          )}
         </div>
-
         {habit.detail && (
-          <div className="prose prose-sm mt-2 max-w-none text-muted-foreground">
+          <div className="prose prose-sm mt-1 max-w-none text-muted-foreground">
             <ReactMarkdown>{habit.detail}</ReactMarkdown>
           </div>
         )}
-
-        {streak > 0 && (
-          <p className="mt-1.5 flex items-center gap-2 text-xs">
-            <span className="font-semibold text-primary">🔥 {streak} day streak</span>
-          </p>
-        )}
       </div>
 
-      <div className="ml-4 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-        <button
-          onClick={onDuplicate}
-          className="rounded-full p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
-          title="Duplicate"
-        >
+      {/* Actions */}
+      <div className="flex shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <button onClick={onDuplicate} className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Duplicate">
           <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
           </svg>
         </button>
-
-        <button
-          onClick={onArchive}
-          className="rounded-full p-2 text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
-          title={habit.archived ? "Unarchive" : "Archive"}
-        >
+        <button onClick={onArchive} className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Archive">
           <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
           </svg>
         </button>
-
         {!done && (
-          <button
-            onClick={onRemove}
-            className="rounded-full p-2 text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive"
-            title="Delete"
-          >
+          <button onClick={onRemove} className="rounded-full p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" title="Delete">
             <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
         )}

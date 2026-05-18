@@ -142,7 +142,27 @@ export const useHabits = () => {
     }));
   }, [state.undoStack]);
 
-  const reorderHabits = useCallback((oldIndex: number, newIndex: number, filteredHabits: Habit[]) => {
+  const addHabitsFromTemplate = useCallback(
+    (habits: Omit<Habit, "id" | "completions" | "order">[], intent: string) => {
+      setState((prev) => {
+        const startOrder = prev.habits.length;
+        const newHabits: Habit[] = habits.map((h, i) => ({
+          ...h,
+          id: crypto.randomUUID(),
+          completions: {},
+          order: startOrder + i,
+        }));
+        return {
+          ...prev,
+          intent,
+          habits: [...prev.habits, ...newHabits],
+        };
+      });
+    },
+    []
+  );
+
+  const reorderHabits = useCallback((_oldIndex: number, _newIndex: number, filteredHabits: Habit[]) => {
     setState((prev) => {
       const updatedHabits = prev.habits.map((h) => {
         const newOrder = filteredHabits.findIndex((fh) => fh.id === h.id);
@@ -164,6 +184,7 @@ export const useHabits = () => {
     hydrated,
     setIntent,
     addHabit,
+    addHabitsFromTemplate,
     removeHabit,
     archiveHabit,
     duplicateHabit,

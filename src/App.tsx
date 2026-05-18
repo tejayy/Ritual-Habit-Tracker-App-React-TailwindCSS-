@@ -17,6 +17,7 @@ const App = () => {
     hydrated,
     setIntent,
     addHabit,
+    addHabitsFromTemplate,
     removeHabit,
     archiveHabit,
     duplicateHabit,
@@ -102,6 +103,7 @@ const App = () => {
           onDuplicate={duplicateHabit}
           onRemove={removeHabit}
           onAdd={addHabit}
+          onAddFromTemplate={addHabitsFromTemplate}
           onReorder={reorderHabits}
           canUndo={state.undoStack.length > 0}
           onUndo={undo}

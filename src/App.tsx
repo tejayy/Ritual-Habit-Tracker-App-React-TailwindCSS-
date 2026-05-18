@@ -41,12 +41,23 @@ const App = () => {
   const [detail, setDetail] = useState("");
 
   const [editIntent, setEditIntent] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
 
     if (raw) {
       setState(JSON.parse(raw));
+    }
+
+    // Load dark mode preference
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode !== null) {
+      setDarkMode(savedDarkMode === "true");
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      setDarkMode(prefersDark);
     }
 
     setHydrated(true);
@@ -57,6 +68,17 @@ const App = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
   }, [state, hydrated]);
+
+  useEffect(() => {
+    if (hydrated) {
+      localStorage.setItem("darkMode", darkMode.toString());
+      if (darkMode) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, [darkMode, hydrated]);
 
   const setIntent = (intent: string) => {
     setState((prev) => ({
@@ -166,39 +188,55 @@ const App = () => {
   });
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <nav className="sticky top-0 z-10 flex items-baseline justify-between border-b border-white/10 bg-black/80 px-6 py-6 backdrop-blur-md md:px-10">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      <nav className="sticky top-0 z-10 flex items-baseline justify-between border-b border-border/60 bg-background/95 px-6 py-6 backdrop-blur-xl md:px-10">
         <div className="flex items-baseline gap-4">
-          <h1 className="text-xl italic md:text-2xl">{dateLabel}</h1>
+          <h1 className="font-serif text-2xl font-semibold tracking-tight md:text-3xl">{dateLabel}</h1>
         </div>
 
-        <div className="flex items-center gap-6 text-sm font-medium tracking-tight">
-          <a href="#" className="text-violet-400">
+        <div className="flex items-center gap-6 text-sm font-medium">
+          <a href="#" className="text-primary transition-colors hover:text-primary/80">
             Today
           </a>
 
           <a
             href="#"
-            className="hidden opacity-40 transition-opacity hover:opacity-100 sm:inline"
+            className="hidden text-muted-foreground transition-colors hover:text-foreground sm:inline"
           >
             History
           </a>
 
-          <div className="grid size-8 place-items-center rounded-full bg-violet-500/10 text-[10px] font-bold uppercase tracking-tighter text-violet-300 ring-1 ring-violet-500/20">
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className="grid size-9 place-items-center rounded-full bg-muted transition-all hover:bg-muted/80"
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? (
+              <svg className="size-5 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              </svg>
+            ) : (
+              <svg className="size-5 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              </svg>
+            )}
+          </button>
+
+          <div className="grid size-9 place-items-center rounded-full bg-primary/10 text-[11px] font-semibold uppercase tracking-wide text-primary ring-1 ring-primary/20">
             JD
           </div>
         </div>
       </nav>
 
-      <main className="mx-auto grid max-w-7xl grid-cols-12 gap-8 px-6 py-12 md:gap-12 md:px-10">
+      <main className="dashboard-container grid grid-cols-12 gap-8 py-12 md:gap-12">
         {/* LEFT */}
-        <aside className="col-span-12 space-y-12 lg:col-span-3">
-          <section className="space-y-4">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">
+        <aside className="col-span-12 space-y-10 lg:col-span-3">
+          <section className="space-y-5">
+            <h2 className="mini-label">
               Current Intent
             </h2>
 
-            <div className="space-y-3 rounded-xl border border-white/10 bg-white/[0.03] p-5">
+            <div className="sidebar-card space-y-4 transition-all duration-300 hover:shadow-md">
               {editIntent ? (
                 <textarea
                   autoFocus
@@ -206,64 +244,66 @@ const App = () => {
                   onChange={(e) => setIntent(e.target.value)}
                   onBlur={() => setEditIntent(false)}
                   rows={3}
-                  className="w-full resize-none bg-transparent text-lg font-medium leading-tight tracking-tight outline-none"
+                  className="w-full resize-none bg-transparent font-serif text-lg font-medium leading-snug tracking-tight outline-none"
                 />
               ) : (
                 <p
                   onClick={() => setEditIntent(true)}
-                  className="cursor-text text-lg font-medium leading-tight tracking-tight"
+                  className="cursor-text font-serif text-lg font-medium leading-snug tracking-tight transition-colors hover:text-primary"
                 >
                   {state.intent}
                 </p>
               )}
 
-              <div className="flex items-center gap-2">
-                <div className="size-1.5 animate-pulse rounded-full bg-violet-400" />
+              <div className="flex items-center gap-2.5">
+                <div className="size-2 animate-pulse rounded-full bg-primary shadow-lg shadow-primary/50" />
 
-                <span className="font-mono text-xs uppercase text-gray-500">
+                <span className="mini-label text-[10px]">
                   Active Phase
                 </span>
               </div>
             </div>
           </section>
 
-          <section className="space-y-4">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">
+          <section className="space-y-5">
+            <h2 className="mini-label">
               Last 14 Days
             </h2>
 
-            <div className="grid grid-cols-7 gap-1.5">
-              {days.map((d) => {
-                const ratio = dayCompletionRatio(state.habits, d);
+            <div className="sidebar-card">
+              <div className="grid grid-cols-7 gap-2">
+                {days.map((d) => {
+                  const ratio = dayCompletionRatio(state.habits, d);
 
-                return (
-                  <div
-                    key={d}
-                    className="aspect-square rounded-sm bg-violet-500"
-                    style={{
-                      opacity: Math.max(ratio, 0.08),
-                    }}
-                  />
-                );
-              })}
+                  return (
+                    <div
+                      key={d}
+                      className="aspect-square rounded-lg bg-primary transition-all duration-300 hover:scale-110"
+                      style={{
+                        opacity: Math.max(ratio, 0.1),
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              <p className="mt-5 text-xs leading-relaxed text-muted-foreground">
+                You're at <span className="font-semibold text-primary">{Math.round(weekRatio * 100)}%</span> consistency this week.
+              </p>
             </div>
-
-            <p className="text-[11px] leading-relaxed text-gray-500">
-              You're at {Math.round(weekRatio * 100)}% consistency this week.
-            </p>
           </section>
         </aside>
 
         {/* CENTER */}
         <section className="col-span-12 space-y-8 lg:col-span-6">
           <div className="flex items-center justify-between">
-            <h2 className="text-3xl italic md:text-4xl">Daily Rituals</h2>
+            <h2 className="section-title">Daily Rituals</h2>
 
             <button
               onClick={() => setShowAdd((v) => !v)}
-              className="rounded-full border border-white/10 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] transition-colors hover:border-violet-400 hover:text-violet-400"
+              className="ritual-button"
             >
-              {showAdd ? "Close" : "+ Add"}
+              {showAdd ? "Close" : "+ Add Ritual"}
             </button>
           </div>
 
@@ -278,48 +318,49 @@ const App = () => {
                 setDetail("");
                 setShowAdd(false);
               }}
-              className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+              className="ritual-card animate-in fade-in slide-in-from-top-4 duration-300"
             >
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Habit name"
-                className="w-full bg-transparent text-lg outline-none placeholder:text-gray-500"
+                placeholder="Ritual name"
+                autoFocus
+                className="w-full bg-transparent font-serif text-xl font-medium outline-none placeholder:text-muted-foreground/50"
               />
 
               <input
                 value={detail}
                 onChange={(e) => setDetail(e.target.value)}
-                placeholder="Short detail"
-                className="w-full bg-transparent text-sm outline-none placeholder:text-gray-600"
+                placeholder="Add a short description..."
+                className="mt-3 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground/40"
               />
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="mt-6 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowAdd(false)}
-                  className="px-3 py-1.5 text-sm text-gray-400"
+                  className="rounded-full px-5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 >
                   Cancel
                 </button>
 
                 <button
                   type="submit"
-                  className="rounded-full bg-white px-4 py-1.5 text-sm text-black"
+                  className="ritual-button"
                 >
-                  Save Habit
+                  Save Ritual
                 </button>
               </div>
             </form>
           )}
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             {hydrated && state.habits.length === 0 && (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-10 text-center">
-                <p className="mb-2 text-2xl italic">A blank canvas.</p>
+              <div className="ritual-card text-center">
+                <p className="mb-3 font-serif text-3xl font-semibold text-muted-foreground">A blank canvas.</p>
 
-                <p className="text-sm text-gray-500">
-                  Add your first ritual to begin.
+                <p className="text-sm text-muted-foreground">
+                  Add your first ritual to begin your journey.
                 </p>
               </div>
             )}
@@ -331,33 +372,47 @@ const App = () => {
               return (
                 <div
                   key={h.id}
-                  className="group flex items-center rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition-all hover:border-violet-400/30"
+                  className="ritual-card group flex items-center"
                 >
                   <button
                     onClick={() => toggleToday(h.id)}
-                    className={`mr-5 size-7 rounded-full ${
-                      done ? "bg-violet-400" : "border border-white/20"
+                    className={`mr-6 size-8 rounded-full transition-all duration-300 ${
+                      done 
+                        ? "bg-primary shadow-lg shadow-primary/30 ring-4 ring-primary/20" 
+                        : "border-2 border-border hover:border-primary"
                     }`}
-                  />
+                  >
+                    {done && (
+                      <svg className="mx-auto size-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
 
                   <div className="min-w-0 flex-1">
                     <h3
-                      className={`font-medium ${
-                        done ? "line-through opacity-40" : ""
+                      className={`font-serif text-xl font-semibold transition-all ${
+                        done ? "text-muted-foreground line-through" : "text-foreground"
                       }`}
                     >
                       {h.name}
                     </h3>
 
-                    <p className="mt-0.5 truncate font-mono text-xs text-gray-500">
-                      {h.detail || "—"} {streak > 0 && `• ${streak} day streak`}
+                    <p className="mt-1.5 flex items-center gap-2 truncate text-xs text-muted-foreground">
+                      <span>{h.detail || "No description"}</span>
+                      {streak > 0 && (
+                        <>
+                          <span className="text-border">•</span>
+                          <span className="font-semibold text-primary">🔥 {streak} day streak</span>
+                        </>
+                      )}
                     </p>
                   </div>
 
                   {!done && (
                     <button
                       onClick={() => removeHabit(h.id)}
-                      className="ml-3 text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-red-400"
+                      className="ml-4 rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-wider text-muted-foreground transition-all hover:bg-destructive/10 hover:text-destructive"
                     >
                       Remove
                     </button>
@@ -369,26 +424,26 @@ const App = () => {
         </section>
 
         {/* RIGHT */}
-        <aside className="col-span-12 space-y-8 lg:col-span-3">
-          <section className="space-y-4">
-            <h2 className="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">
-              Today
+        <aside className="col-span-12 space-y-10 lg:col-span-3">
+          <section className="space-y-5">
+            <h2 className="mini-label">
+              Today's Progress
             </h2>
 
-            <div className="rounded-2xl bg-white p-6 text-black">
-              <div className="flex items-baseline gap-2">
-                <span className="text-5xl italic">{completedToday}</span>
+            <div className="sidebar-card bg-gradient-to-br from-primary/5 to-primary/10 shadow-lg transition-all duration-300 hover:shadow-xl">
+              <div className="flex items-baseline gap-3">
+                <span className="font-serif text-6xl font-bold text-primary">{completedToday}</span>
 
-                <span className="text-sm opacity-50">/ {total}</span>
+                <span className="text-lg text-muted-foreground">/ {total}</span>
               </div>
 
-              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.2em] opacity-50">
+              <p className="mini-label mt-3 text-[10px]">
                 Rituals Completed
               </p>
 
-              <div className="mt-6 h-1 overflow-hidden rounded-full bg-black/10">
+              <div className="mt-6 h-2 overflow-hidden rounded-full bg-border">
                 <div
-                  className="h-full bg-violet-500 transition-all duration-700"
+                  className="h-full bg-gradient-to-r from-primary to-primary/70 shadow-lg shadow-primary/30 transition-all duration-700 ease-out"
                   style={{
                     width: total ? `${(completedToday / total) * 100}%` : "0%",
                   }}
@@ -397,18 +452,20 @@ const App = () => {
             </div>
           </section>
 
-          <section className="border-t border-white/10 pt-6">
-            <h2 className="mb-3 font-mono text-[10px] uppercase tracking-[0.2em] text-gray-500">
+          <section className="space-y-5">
+            <h2 className="mini-label">
               Reflection
             </h2>
 
-            <p className="text-sm leading-relaxed text-gray-400">
-              {completedToday === 0
-                ? "A quiet start. The first check-in unlocks momentum."
-                : completedToday === total
-                  ? "Full alignment today. Notice what made it possible."
-                  : `${total - completedToday} rituals remaining.`}
-            </p>
+            <div className="sidebar-card">
+              <p className="font-serif text-base leading-relaxed text-muted-foreground">
+                {completedToday === 0
+                  ? "A quiet start. The first check-in unlocks momentum."
+                  : completedToday === total
+                    ? "Full alignment today. Notice what made it possible."
+                    : `${total - completedToday} ritual${total - completedToday > 1 ? 's' : ''} remaining.`}
+              </p>
+            </div>
           </section>
         </aside>
       </main>
